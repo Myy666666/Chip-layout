@@ -125,6 +125,18 @@ weights/superpoint_v1.pth
 weights/mlp_head_triplet-0410.pth
 ```
 
+The prediction entry point is:
+
+```text
+predict_mlp_cosine.py
+```
+
+The three weight paths used for prediction are defined near the beginning of the code files:
+
+- DINOv2 Large weight: `DEFAULT_DINO_CKPT` in `predict_mlp_cosine.py`.
+- MLP projection-head weight: `DEFAULT_MLP_WEIGHT` in `predict_mlp_cosine.py`.
+- SuperPoint weight: `DEFAULT_SUPERPOINT_WEIGHT` in `predict_mlp_cosine.py`, which points to `DEFAULT_SUPERPOINT_PATH` from `hybrid_cnn_dino.py`.
+
 Compare two chip layout images:
 
 ```cmd
@@ -149,3 +161,25 @@ set MLP_WEIGHT_PATH=D:\path\to\mlp_head_triplet-0410.pth
 - Large datasets and model checkpoints are distributed through GitHub Releases.
 - The Git repository contains the source code and lightweight project files.
 - The Release page contains the partial chip layout dataset and the three required weights: DINOv2 Large, SuperPoint, and the trained MLP head.
+
+## DINOv2 Model Scale
+
+This project uses DINOv2 Large / ViT-L/14 by default. The model scale is set in `DinoNet.py`:
+
+```python
+self.model = dino.vit_large()
+```
+
+If you want to switch to DINOv2 Base or Small, modify the model definition in `DinoNet.py` and download the corresponding Base or Small checkpoint again:
+
+```python
+# For DINOv2 Base
+self.model = dino.vit_base()
+
+# For DINOv2 Small
+self.model = dino.vit_small()
+```
+
+Then replace `weights/dinov2_vitl14_pretrain.pth` with the matching Base or Small weight file, or set `DINO_CKPT_PATH` to the new checkpoint path.
+
+Do not only replace the weight file without changing `DinoNet.py`. Large, Base, and Small use different model sizes and feature dimensions, so a mismatched checkpoint can cause loading errors or downstream MLP dimension mismatch.
