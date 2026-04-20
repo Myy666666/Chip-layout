@@ -1,12 +1,12 @@
 # Chip Layout Similarity
 
-This repository contains the implementation of a chip layout image similarity method based on a Hybrid CNN + DINOv2 Large backbone and an MLP projection head.
+This repository provides code for chip layout image similarity matching based on a Hybrid CNN + DINOv2 Large backbone and an MLP projection head.
 
-The model extracts local CNN features, uses DINOv2 features to generate spatial attention, and compares two chip layout images by cosine similarity in the learned embedding space.
+The method uses SuperPoint-style CNN features for local structure extraction, DINOv2 Large features for spatial attention guidance, and a trained MLP head to project image features into a similarity embedding space.
 
-## Open-Source Dataset and Weights
+## Release Assets
 
-We have open-sourced part of the chip layout dataset and the required pretrained weights in the GitHub Releases of this repository:
+We provide the required dataset and model weights through GitHub Releases:
 
 ```text
 https://github.com/Myy666666/Chip-layout/releases
@@ -14,11 +14,16 @@ https://github.com/Myy666666/Chip-layout/releases
 
 The Release assets include:
 
-- A partial chip layout dataset for training and testing.
+- A partial open-source chip layout dataset.
 - DINOv2 Large / ViT-L/14 pretrained weights.
 - SuperPoint pretrained weights.
+- Our trained MLP projection-head weights.
 
-After downloading the Release assets, place them in the following structure:
+These files are not stored directly in the Git repository because the dataset and model checkpoints are large. Please download them from the Release page before training or prediction.
+
+## Expected File Structure
+
+After cloning this repository and downloading the Release assets, place the files like this:
 
 ```text
 Chip-layout/
@@ -36,7 +41,7 @@ Chip-layout/
     mlp_head_triplet-0410.pth
 ```
 
-`dinov2_vitl14_pretrain.pth` is about 1.2 GB, so it is not stored directly in the Git repository. Please download it from Releases before running training or prediction.
+The names above are the default paths used by the scripts. If your files are stored elsewhere, you can set environment variables instead.
 
 ## Repository Contents
 
@@ -45,22 +50,21 @@ Chip-layout/
 - `mlp_head.py`: MLP projection head.
 - `train_mlp_cosine.py`: triplet-loss training script.
 - `predict_mlp_cosine.py`: pairwise chip layout similarity prediction script.
-- `weights/mlp_head_triplet-0410.pth`: trained MLP projection-head weights.
 - `requirements.txt`: Python dependencies.
 
 ## Installation
 
-Create a Python environment, then install dependencies:
+Install the Python dependencies:
 
 ```cmd
 pip install -r requirements.txt
 ```
 
-If PyTorch needs CUDA support, install the PyTorch version that matches your CUDA environment from the official PyTorch instructions.
+If you use GPU acceleration, install the PyTorch version that matches your CUDA environment.
 
 ## Dataset Format
 
-Training uses grouped class folders. Images in the same folder are treated as positive samples, while images from different folders are treated as negative samples.
+Training expects grouped class folders. Images in the same folder are treated as positive samples, and images from different folders are treated as negative samples.
 
 ```text
 data/
@@ -75,7 +79,7 @@ data/
 
 Each class folder should contain at least two images.
 
-You can also use another dataset path by setting `GROUPED_DIR`:
+To use a custom dataset path:
 
 ```cmd
 set GROUPED_DIR=D:\path\to\grouped_dataset
@@ -83,20 +87,20 @@ set GROUPED_DIR=D:\path\to\grouped_dataset
 
 ## Training
 
-Make sure the DINOv2 Large weights and SuperPoint weights are available:
+Before training, download the DINOv2 Large weights and SuperPoint weights from Releases and place them in:
 
 ```text
 weights/dinov2_vitl14_pretrain.pth
 weights/superpoint_v1.pth
 ```
 
-Then run:
+Run training:
 
 ```cmd
 python train_mlp_cosine.py
 ```
 
-Common training overrides:
+Common options:
 
 ```cmd
 set GROUPED_DIR=D:\path\to\grouped_dataset
@@ -105,13 +109,21 @@ set BATCH_SIZE=16
 python train_mlp_cosine.py
 ```
 
-The trained MLP weights are saved to:
+The newly trained MLP weights are saved to:
 
 ```text
 weights/mlp_head_triplet.pth
 ```
 
 ## Prediction
+
+Before prediction, download all three weight files from Releases:
+
+```text
+weights/dinov2_vitl14_pretrain.pth
+weights/superpoint_v1.pth
+weights/mlp_head_triplet-0410.pth
+```
 
 Compare two chip layout images:
 
@@ -125,14 +137,15 @@ Optional arguments:
 python predict_mlp_cosine.py image1.jpg image2.jpg --rotate-deg 90 --threshold 0.7 --show
 ```
 
-If the DINOv2 checkpoint is stored somewhere else, set:
+If your DINOv2 checkpoint or MLP checkpoint is stored in another location, use:
 
 ```cmd
 set DINO_CKPT_PATH=D:\path\to\dinov2_vitl14_pretrain.pth
+set MLP_WEIGHT_PATH=D:\path\to\mlp_head_triplet-0410.pth
 ```
 
 ## Notes
 
-- Large files such as the DINOv2 Large checkpoint and full datasets should be distributed through GitHub Releases, Git LFS, or external dataset hosting.
-- The repository keeps the code and lightweight configuration in Git, while large assets are referenced from Releases.
-- The included `mlp_head_triplet-0410.pth` can be used directly for prediction after the DINOv2 and SuperPoint weights are prepared.
+- Large datasets and model checkpoints are distributed through GitHub Releases.
+- The Git repository contains the source code and lightweight project files.
+- The Release page contains the partial chip layout dataset and the three required weights: DINOv2 Large, SuperPoint, and the trained MLP head.
