@@ -1,0 +1,21 @@
+__pycache__/
+*.pyc
+*.pyo
+
+.venv/
+venv/
+.idea/
+.vscode/
+
+outputs/*
+!outputs/.gitkeep
+
+examples/*
+!examples/.gitkeep
+
+data/grouped/*
+!data/grouped/.gitkeep
+
+# This checkpoint is about 1.2 GB and cannot be uploaded to a normal GitHub repo.
+weights/dinov2_vitl14_pretrain.pth
+
